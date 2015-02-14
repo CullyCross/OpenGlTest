@@ -33,7 +33,7 @@ public class AirHockeyActivity extends ActionBarActivity {
             mGLSurfaceView.setEGLContextClientVersion(2);
 
             //Assign our renderer.
-            mGLSurfaceView.setRenderer(new AirHockeyRenderer());
+            mGLSurfaceView.setRenderer(new AirHockeyRenderer(this));
             mRenderSet = true;
         } else {
             Toast.makeText(this, "This device does not support OpenGL ES 2.0.",
