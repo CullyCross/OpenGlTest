@@ -1,4 +1,4 @@
-package cullycross.firstopenglproject;
+package cullycross.airhockeygame;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

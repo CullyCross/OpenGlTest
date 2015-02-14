@@ -1,4 +1,4 @@
-package cullycross.firstopenglproject;
+package cullycross.airhockeygame;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 
-public class MainActivity extends ActionBarActivity {
+public class AirHockeyActivity extends ActionBarActivity {
 
     private GLSurfaceView mGLSurfaceView;
     private boolean mRenderSet = false;
@@ -33,7 +33,7 @@ public class MainActivity extends ActionBarActivity {
             mGLSurfaceView.setEGLContextClientVersion(2);
 
             //Assign our renderer.
-            mGLSurfaceView.setRenderer(new MyLittleRenderer());
+            mGLSurfaceView.setRenderer(new AirHockeyRenderer());
             mRenderSet = true;
         } else {
             Toast.makeText(this, "This device does not support OpenGL ES 2.0.",
