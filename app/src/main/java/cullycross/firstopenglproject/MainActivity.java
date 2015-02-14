@@ -1,19 +1,66 @@
 package cullycross.firstopenglproject;
 
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
+import android.opengl.GLSurfaceView;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 
 public class MainActivity extends ActionBarActivity {
 
+    private GLSurfaceView mGLSurfaceView;
+    private boolean mRenderSet = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+        mGLSurfaceView = new GLSurfaceView(this);
+        final ActivityManager activityManager =
+                (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
+        final ConfigurationInfo configurationInfo =
+                activityManager.getDeviceConfigurationInfo();
+        final boolean supportEs2 =
+                configurationInfo.reqGlEsVersion >= 0x20000;
+
+        if(supportEs2) {
+            //Request an Open ES 2.0 compatible context.
+            mGLSurfaceView.setEGLContextClientVersion(2);
+
+            //Assign our renderer.
+            mGLSurfaceView.setRenderer(new MyLittleRenderer());
+            mRenderSet = true;
+        } else {
+            Toast.makeText(this, "This device does not support OpenGL ES 2.0.",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        setContentView(mGLSurfaceView);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(mRenderSet) {
+            mGLSurfaceView.onResume();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if(mRenderSet) {
+            mGLSurfaceView.onPause();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
