@@ -1,0 +1,38 @@
+package cullycross.airhockeygame.programs;
+
+import static android.opengl.GLES20.glUseProgram;
+
+import android.content.Context;
+
+import cullycross.airhockeygame.utils.ShaderHelper;
+import cullycross.airhockeygame.utils.TextResourceReader;
+
+/**
+ * Created by cullycross on 2/17/15.
+ */
+public abstract class ShaderProgram {
+
+    //Uniforms
+    protected static final String U_MATRIX = "u_Matrix";
+    protected static final String U_TEXTURE_UNIT = "u_TextureUnit";
+
+    //Attributes
+    protected static final String A_POSITION = "a_Position";
+    protected static final String A_COLOR = "a_Color";
+    protected static final String A_TEXTURE_COORDINATES = "a_TextureCoordinates";
+
+    //Shader
+    protected final int program;
+    protected  ShaderProgram(Context context, int vertexShaderResourceId,
+                             int fragmentShaderResourceId) {
+        program = ShaderHelper.buildProgram(
+                TextResourceReader.readTextFileFromResource(
+                        context, vertexShaderResourceId),
+                TextResourceReader.readTextFileFromResource(
+                        context, fragmentShaderResourceId));
+    }
+
+    public void useProgram() {
+        glUseProgram(program);
+    }
+}
