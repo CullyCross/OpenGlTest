@@ -2,29 +2,25 @@ package cullycross.airhockeygame.objects;
 
 import java.util.List;
 
-import static android.opengl.GLES20.GL_POINTS;
-import static android.opengl.GLES20.glDrawArrays;
-
-import cullycross.airhockeygame.Constants;
 import cullycross.airhockeygame.data.VertexArray;
 import cullycross.airhockeygame.programs.ColorShaderProgram;
 import cullycross.airhockeygame.utils.Geometry;
 
 /**
- * Created by cullycross on 2/17/15.
+ * Created by cullycross on 2/18/15.
  */
-public class Mallet {
-    private static final int POSITION_COMPONENT_COUNT = 2;
+public class Puck {
 
-    public final float radius;
-    public final float height;
+    private static final int POSITION_COMPONENT_COUNT = 3;
+    public final float radius, height;
 
     private final VertexArray mVertexArray;
     private final List<ObjectBuilder.DrawCommand> mDrawList;
 
-    public Mallet(float radius, float height, int numPointsAroundMallet) {
-        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createMallet(
-                new Geometry.Point(0f, 0f, 0f), radius, height, numPointsAroundMallet
+    public Puck(float radius, float height, int numPointsAroundPuck) {
+        ObjectBuilder.GeneratedData generatedData = ObjectBuilder.createPuck(
+                new Geometry.Cylinder(new Geometry.Point(0f, 0f, 0f), radius, height),
+                numPointsAroundPuck
         );
 
         this.radius = radius;
@@ -45,5 +41,4 @@ public class Mallet {
             drawCommand.draw();
         }
     }
-
 }
