@@ -1,5 +1,7 @@
 package cullycross.airhockeygame.utils;
 
+import java.util.Vector;
+
 /**
  * Created by cullycross on 2/18/15.
  */
@@ -42,5 +44,33 @@ public class Geometry {
             this.radius = radius;
             this.height = height;
         }
+    }
+
+    public static class Ray {
+        public final Point point;
+        public final Vector vector;
+
+        public Ray(Point point, Vector vector) {
+            this.point = point;
+            this.vector = vector;
+        }
+    }
+
+    public static class Vector {
+        public final float x, y, z;
+
+        public Vector(float x, float y, float z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    public static Vector vectorBetween(Point from, Point to) {
+        return new Vector(
+                to.x - from.x,
+                to.y - from.y,
+                to.z - from.z
+        );
     }
 }
