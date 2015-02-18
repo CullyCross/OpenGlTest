@@ -71,6 +71,7 @@ public class ObjectBuilder {
 
         int size = sizeOfCircleInVertices(numPoints) * 2 +
                 sizeOfOpenCylinderInVertices(numPoints) * 2;
+
         ObjectBuilder builder = new ObjectBuilder(size);
 
         float baseHeight = height * 0.25f;

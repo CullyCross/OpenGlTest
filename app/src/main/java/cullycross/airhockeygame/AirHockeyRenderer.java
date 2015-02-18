@@ -3,34 +3,22 @@ package cullycross.airhockeygame;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 
-import static android.opengl.GLES20.glUniformMatrix4fv;
 import static android.opengl.Matrix.*;
 
 import static android.opengl.GLES20.GL_COLOR_BUFFER_BIT;
-import static android.opengl.GLES20.GL_FLOAT;
-import static android.opengl.GLES20.GL_LINES;
-import static android.opengl.GLES20.GL_POINTS;
-import static android.opengl.GLES20.GL_TRIANGLES;
-import static android.opengl.GLES20.GL_TRIANGLE_FAN;
 import static android.opengl.GLES20.glClear;
 import static android.opengl.GLES20.glClearColor;
-import static android.opengl.GLES20.glDrawArrays;
-import static android.opengl.GLES20.glEnableVertexAttribArray;
-import static android.opengl.GLES20.glGetAttribLocation;
-import static android.opengl.GLES20.glGetUniformLocation;
-import static android.opengl.GLES20.glUseProgram;
-import static android.opengl.GLES20.glVertexAttribPointer;
 import static android.opengl.GLES20.glViewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import cullycross.airhockeygame.objects.Mallet;
+import cullycross.airhockeygame.objects.Puck;
 import cullycross.airhockeygame.objects.Table;
 import cullycross.airhockeygame.programs.ColorShaderProgram;
 import cullycross.airhockeygame.programs.TextureShaderProgram;
 import cullycross.airhockeygame.utils.MatrixHelper;
-import cullycross.airhockeygame.utils.ShaderHelper;
 import cullycross.airhockeygame.utils.TextureHelper;
 
 /**
@@ -42,9 +30,13 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
 
     private final float [] mProjectionMatrix = new float[16];
     private final float [] mModelMatrix = new float[16];
+    private final float [] mViewMatrix = new float[16];
+    private final float [] mViewProjectionMatrix = new float[16];
+    private final float [] mModelViewProjectionMatrix = new float[16];
 
     private Table mTable;
     private Mallet mMallet;
+    private Puck mPuck;
 
     private TextureShaderProgram mTextureProgram;
     private ColorShaderProgram mColorProgram;
@@ -61,7 +53,8 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         mTable = new Table();
-        mMallet = new Mallet();
+        mMallet = new Mallet(0.08f, 0.15f, 32);
+        mPuck = new Puck(0.06f, 0.02f, 32);
 
         mTextureProgram = new TextureShaderProgram(mContext);
         mColorProgram = new ColorShaderProgram(mContext);
@@ -77,31 +70,48 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         MatrixHelper.perspectiveM(mProjectionMatrix, 45,
                 (float) width / (float) height, 1f, 10f);
 
-        setIdentityM(mModelMatrix, 0);
-        translateM(mModelMatrix, 0, 0f, 0f, -2.5f);
-        rotateM(mModelMatrix, 0, -60f, 1f, 0f, 0f);
-
-        final float [] temp = new float[16];
-        multiplyMM(temp, 0, mProjectionMatrix,
-                0, mModelMatrix, 0);
-        System.arraycopy(temp, 0,
-                mProjectionMatrix, 0, temp.length);
-
+        setLookAtM(mViewMatrix, 0, 0f, 1.2f, 2.2f, 0f, 0f, 0f, 0f, 1f, 0f);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         glClear(GL_COLOR_BUFFER_BIT);
 
+        multiplyMM(mViewProjectionMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+
+        positionTableInTheScene();
         mTextureProgram.useProgram();
-        mTextureProgram.setUniforms(mProjectionMatrix, mTexture);
+        mTextureProgram.setUniforms(mModelViewProjectionMatrix, mTexture);
         mTable.bindData(mTextureProgram);
         mTable.draw();
 
+        positionObjectInScene(0f, mMallet.height / 2f, -0.4f);
         mColorProgram.useProgram();
-        mColorProgram.setUniforms(mProjectionMatrix);
+        mColorProgram.setUniforms(mModelViewProjectionMatrix, 1f, 0f, 0f);
         mMallet.bindData(mColorProgram);
         mMallet.draw();
 
+        positionObjectInScene(0f, mMallet.height / 2f, 0.4f);
+        mColorProgram.setUniforms(mModelViewProjectionMatrix, 0f, 0f, 1f);
+        mMallet.draw();
+
+        positionObjectInScene(0f, mPuck.height / 2f, 0f);
+        mColorProgram.setUniforms(mModelViewProjectionMatrix, 0.8f, 0.8f, 1f);
+        mPuck.bindData(mColorProgram);
+        mPuck.draw();
+    }
+
+    private void positionObjectInScene(float x, float y, float z) {
+        setIdentityM(mModelMatrix, 0);
+        translateM(mModelMatrix, 0, x, y, z);
+        multiplyMM(mModelViewProjectionMatrix, 0, mViewProjectionMatrix,
+                0, mModelMatrix, 0);
+    }
+
+    private void positionTableInTheScene() {
+        setIdentityM(mModelMatrix, 0);
+        rotateM(mModelMatrix, 0, -90f, 1f, 0f, 0f);
+        multiplyMM(mModelViewProjectionMatrix,
+                0, mViewProjectionMatrix, 0, mModelMatrix, 0);
     }
 }

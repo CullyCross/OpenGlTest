@@ -14,7 +14,7 @@ import cullycross.airhockeygame.utils.Geometry;
  * Created by cullycross on 2/17/15.
  */
 public class Mallet {
-    private static final int POSITION_COMPONENT_COUNT = 2;
+    private static final int POSITION_COMPONENT_COUNT = 3;
 
     public final float radius;
     public final float height;
