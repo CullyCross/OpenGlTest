@@ -2,6 +2,7 @@ package cullycross.airhockeygame;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import static android.opengl.Matrix.*;
 
@@ -99,7 +100,8 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         mMallet.bindData(mColorProgram);
         mMallet.draw();
 
-        positionObjectInScene(0f, mMallet.height / 2f, 0.4f);
+        positionObjectInScene(mBlueMalletPosition.x,
+                mBlueMalletPosition.y, mBlueMalletPosition.z);
         mColorProgram.setUniforms(mModelViewProjectionMatrix, 0f, 0f, 1f);
         mMallet.draw();
 
@@ -123,14 +125,10 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 0, mViewProjectionMatrix, 0, mModelMatrix, 0);
     }
 
-    public void handleTouchDrag(float normalizedX, float normalizedY) {
-
-    }
-
     public void handleTouchPress(float normalizedX, float normalizedY) {
-        Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
+        Geometry.Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
 
-        Sphere malletBoundingSphere = new Sphere(new Geometry.Point(
+        Geometry.Sphere malletBoundingSphere = new Geometry.Sphere(new Geometry.Point(
                 mBlueMalletPosition.x,
                 mBlueMalletPosition.y,
                 mBlueMalletPosition.z),
@@ -139,7 +137,18 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         mMalletPressed = Geometry.intersects(malletBoundingSphere, ray);
     }
 
-    private Ray convertNormalized2DPointToRay(float normalizedX, float normalizedY) {
+    public void handleTouchDrag(float normalizedX, float normalizedY) {
+        if(mMalletPressed) {
+            Geometry.Ray ray = convertNormalized2DPointToRay(normalizedX, normalizedY);
+            Geometry.Plane plane = new Geometry.Plane(new Geometry.Point(0, 0, 0), new Geometry.Vector(0, 1, 0));
+
+            Geometry.Point touchedPoint = Geometry.intersectionPoint(ray, plane);
+
+            mBlueMalletPosition = new Geometry.Point(touchedPoint.x, mMallet.height / 2f, touchedPoint.z);
+        }
+    }
+
+    private Geometry.Ray convertNormalized2DPointToRay(float normalizedX, float normalizedY) {
 
         final float [] nearPointNdc = {normalizedX, normalizedY, -1, 1};
         final float [] farPointNdc = {normalizedX, normalizedY, 1, 1};
@@ -147,9 +156,9 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
         final float [] nearPointWorld = new float[4];
         final float [] farPointWorld = new float[4];
 
-        multiplyMM(nearPointWorld, 0,
+        multiplyMV(nearPointWorld, 0,
                 mInvertedViewProjectionMatrix, 0, nearPointNdc, 0);
-        multiplyMM(farPointWorld, 0,
+        multiplyMV(farPointWorld, 0,
                 mInvertedViewProjectionMatrix, 0, farPointNdc, 0);
 
         divideByW(nearPointWorld);
@@ -162,7 +171,7 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                 new Geometry.Point(farPointWorld[0],
                         farPointWorld[1], farPointWorld[2]);
 
-        return new Ray(nearPointRay, Geometry.vectorBetween(nearPointRay, farPointRay));
+        return new Geometry.Ray(nearPointRay, Geometry.vectorBetween(nearPointRay, farPointRay));
     }
 
     private void divideByW(float[] vector) {
