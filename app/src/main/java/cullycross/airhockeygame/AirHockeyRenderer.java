@@ -202,6 +202,14 @@ public class AirHockeyRenderer implements GLSurfaceView.Renderer {
                         mPrevBlueMalletPosition, mBlueMalletPosition
                 );
             }
+            mBlueMalletPosition = new Geometry.Point(
+                    clamp(touchedPoint.x,
+                            LEFT_BOUND + mMallet.radius,
+                            RIGHT_BOUND - mMallet.radius),
+                    mMallet.height / 2f,
+                    clamp(touchedPoint.z,
+                            0f + mMallet.radius,
+                            NEAR_BOUND - mMallet.radius));
         }
     }
 
